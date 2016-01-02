@@ -1,0 +1,23 @@
+{
+  "name": "find-modules-in",
+  "version": "1.0.0",
+  "description": "Find modules in a directory",
+  "main": "index.js",
+  "dependencies": {
+    "fs-promise": "^0.3.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "modules",
+    "search"
+  ],
+  "author": "Quentin Engles <hollowdoor99@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hollowdoor/find_modules_in.git"
+  }
+}

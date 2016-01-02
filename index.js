@@ -1,6 +1,11 @@
 var fsp = require('fs-promise'),
     path = require('path');
 
+/*
+git remote add origin https://github.com/hollowdoor/find_modules_in.git
+git push -u origin master
+*/
+
 function findModules(directory, indexes){
 
     if(Object.prototype.toString.call(indexes) !== '[object Array]'){

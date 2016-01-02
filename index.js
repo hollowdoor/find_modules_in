@@ -78,7 +78,7 @@ function findPackages(list, indexes){
                 return true;
             }
 
-            return !includeIndexed ? false : indexExists(file, indexes);
+            return !indexes.length ? false : indexExists(file, indexes);
         });
     });
 

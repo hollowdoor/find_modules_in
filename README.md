@@ -53,8 +53,25 @@ Look for modules under `directory`.
 
 `indexes` is optional, and default `false`.
 
-If `indexes` is passed `false` modules only with package.jons files will be searched for.
+If `indexes` is passed `false` modules only with `package.json` files will be searched for.
 
-If `indexes` is passed `true` modules that contain `index.js`, or `index.node` will also be searched for.
+If `indexes` is passed `true` modules that contain `index.js`, or `index.node` files will also be searched for.
 
 If `indexes` is passed an array of file name strings those are the indexed files that will be searched for when there's no `package.json` file.
+
+modules
+-------
+
+The array returned from the promise has these properties:
+
+### modules[index].directory
+
+The directory is the one installed with `npm install`.
+
+### modules[index].package
+
+If there is a `package.json` file this is the JSON object from that file.
+
+### modules[index].index
+
+If the module doesn't have a `package.json`, and the indexes options is used in the `find-modules-in` function then the `modules[index].index` property will be the main javascript file.

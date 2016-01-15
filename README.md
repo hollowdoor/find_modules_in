@@ -74,4 +74,10 @@ If there is a `package.json` file this is the JSON object from that file.
 
 ### modules[index].index
 
-If the module doesn't have a `package.json`, and the indexes options is used in the `find-modules-in` function then the `modules[index].index` property will be the main javascript file.
+### modules[index].main
+
+If the module doesn't have a `package.json`, and the indexes options is used in the `find-modules-in` function then the `modules[index].index`, and modules[index].main properties will be the main javascript file.
+
+### modules[index].packageError
+
+If there was a `JSON.parse` error on the package.json contents `packageError` will have error text assigned to it. If no parse error happened `packageError` is set to null.

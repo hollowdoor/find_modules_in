@@ -114,11 +114,6 @@ function findPackages(folders, indexes, showStack){
                 if(module.packageError){
                     module.package = null;
                 }
-                /*module.package.error = module.error = module.package.error || undefined;
-
-                if(module.package.error){
-                    delete module.package;
-                }*/
             }
 
             return module;
@@ -148,7 +143,7 @@ function loadPackageJSON(dir, showStack){
         if(empty(packString)){
             return {};
         }
-        console.log(packString);
+
         try{
             return JSON.parse(packString);
         }catch(e){
@@ -159,19 +154,18 @@ function loadPackageJSON(dir, showStack){
     }).catch(function(error){
         return Promise.resolve(false);
     });
-    /*
-    breaking change
-    uncomment for next version
-    .then(function(package){
+
+    /*.then(function(package){
         if(package && typeof package.readme === 'string'){
+            console.log(package.readme.length);
             if(package.readme.length > 140){
                 package.readme = package.readme.slice(0, 140);
             }
         }
 
         return package;
-    });
-    */
+    });*/
+
 }
 
 function createErrorString(e, showStack){

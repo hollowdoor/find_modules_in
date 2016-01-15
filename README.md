@@ -72,6 +72,10 @@ The directory is the one installed with `npm install`.
 
 If there is a `package.json` file this is the JSON object from that file.
 
+#### package.readme
+
+In order to keep memory size down the readme field is truncated. Some readmes are huge. If you want the full readme text you'll have to obtain it in your own code.
+
 ### modules[index].index
 
 ### modules[index].main

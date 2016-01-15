@@ -153,18 +153,16 @@ function loadPackageJSON(dir, showStack){
 
     }).catch(function(error){
         return Promise.resolve(false);
-    });
-
-    /*.then(function(package){
+    }).then(function(package){
         if(package && typeof package.readme === 'string'){
             console.log(package.readme.length);
-            if(package.readme.length > 140){
-                package.readme = package.readme.slice(0, 140);
+            if(package.readme.length > 141){
+                package.readme = package.readme.slice(0, 141);
             }
         }
 
         return package;
-    });*/
+    });
 
 }
 

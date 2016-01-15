@@ -87,21 +87,21 @@ function findPackages(folders, indexes, showStack){
             };
         });
     }).then(function(modules){
-        return modules.map(function(module, i){
+        return Promise.all(modules.map(function(module, i){
             if(module){
-                return module;
+                return Promise.resolve(module);
             }
 
-            return indexExists(file, indexes).then(function(main){
+            return indexExists(folders[i], indexes).then(function(main){
                 if(!main) return false;
                 return {
                     package: null,
-                    directory: folders[index],
+                    directory: folders[i],
                     index: main,
                     main: main
                 };
             });
-        });
+        }));
     });
 
     return resolveModules.then(function(modules){

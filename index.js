@@ -6,7 +6,9 @@ git remote add origin https://github.com/hollowdoor/find_modules_in.git
 git push -u origin master
 */
 
-function findModules(directory, indexes){
+function findModules(directory, indexes, showStack){
+
+    showStack = showStack || false;
 
     if(Object.prototype.toString.call(indexes) !== '[object Array]'){
         if(typeof indexes === 'boolean'){
@@ -25,18 +27,20 @@ function findModules(directory, indexes){
         return typeof index === 'string';
     });
 
-    return fsp.exists(directory).then(function(exists){
-
-        if(!exists){
-            throw new Error('directory '+directory+' does not exist.');
-        }
-
-        return readdir(directory).then(function(files){
-
-            return findFolders(files).then(function(folders){
-                return findPackages(folders, indexes);
+    return readdir(directory).then(function(files){
+        if(!files.length) return [];
+        return findFolders(files).then(function(folders){
+            return findPackages(folders, indexes, showStack).catch(function(e){
+                throw new Error('Something happend when look for packages: '+
+                createErrorString(e, showStack));
             });
+        }).catch(function(e){
+            throw new Error('Something happened when looking for modules: '+
+            createErrorString(e, showStack));
         });
+    }).catch(function(e){
+        throw new Error('Directory '+directory+' is not available with this error '+
+        createErrorString(e, showStack));
     });
 }
 
@@ -63,70 +67,119 @@ function findFolders(files){
     });
 }
 
-function findPackages(list, indexes){
-    var packs;
-    var packsPromise = Promise.all(list.map(function(file){
-        return loadPackageJSON(file);
-    }));
+function findPackages(folders, indexes, showStack){
 
-    var found = packsPromise.then(function(packList){
+    var resolveModules = Promise.all(folders.map(function(file){
+        return loadPackageJSON(file, showStack);
+    })).then(function(packages){
 
-        packs = packList;
-        return list.map(function(file, index){
+        return packages.map(function(package, index){
 
-            if(packs[index]){
-                return true;
+            if(!package){
+                return false;
             }
 
-            return !indexes.length ? false : indexExists(file, indexes);
+            return {
+                package: package,
+                directory: folders[index],
+                index: package.main || package.index || null,
+                main: package.main || package.index || null
+            };
+        });
+    }).then(function(modules){
+        return modules.map(function(module, i){
+            if(module){
+                return module;
+            }
+
+            return indexExists(file, indexes).then(function(main){
+                if(!main) return false;
+                return {
+                    package: null,
+                    directory: folders[index],
+                    index: main,
+                    main: main
+                };
+            });
         });
     });
 
-    return found.then(function(found){
+    return resolveModules.then(function(modules){
 
-        return list.map(function(file, index){
+        return modules.filter(function(module){
+            return module;
+        }).map(function(module){
+            if(module.package){
+                module.packageError = module.package.error || null;
+                if(module.packageError){
+                    module.package = null;
+                }
+                /*module.package.error = module.error = module.package.error || undefined;
 
-            var indexFile = null;
-            if(typeof found[index] === 'string'){
-                indexFile = found[index];
+                if(module.package.error){
+                    delete module.package;
+                }*/
             }
-            return {
-                directory: file,
-                package: packs[index],
-                index: indexFile
-            };
-        }).filter(function(file, index){
-            return found[index];
+
+            return module;
         });
     });
 }
 
 function indexExists(dir, indexes){
-    return Promise.all(indexes.map(function(index){
-        return fsp.exists(path.join(dir, index));
-    })).then(function(existing){
-
-        for(var i=0; i<existing.length; i++){
-            if(existing[i]){
-                return path.join(dir, index);
-            }
-        }
-        return null;
+    return Promise.all(indexes.map(function(indexFile){
+        indexFile = path.join(dir, indexFile);
+        return fsp.stat(indexFile).then(function(){
+            return indexFile;
+        }).catch(function(e){
+            return false;
+        });
+    })).then(function(maybe){
+        maybe = maybe.filter(function(item){
+            return item;
+        });
+        return maybe.length ? path.join(dir, maybe[0]) : false;
     });
 }
 
 
-function loadPackageJSON(dir){
-    return fsp.exists(path.join(dir, 'package.json')).then(function(exists){
-
-        if(!exists){
-            return null;
+function loadPackageJSON(dir, showStack){
+    return fsp.readFile(path.join(dir, 'package.json'), 'utf8').then(function(packString){
+        if(empty(packString)){
+            return {};
+        }
+        console.log(packString);
+        try{
+            return JSON.parse(packString);
+        }catch(e){
+            return {error: "package.json was found but could not be parsed with error: \n"+
+            createErrorString(e, showStack)};
         }
 
-        return fsp.readFile(path.join(dir, 'package.json'), 'utf8').then(function(pack){
-            return JSON.parse(pack);
-        });
+    }).catch(function(error){
+        return Promise.resolve(false);
     });
+    /*
+    breaking change
+    uncomment for next version
+    .then(function(package){
+        if(package && typeof package.readme === 'string'){
+            if(package.readme.length > 140){
+                package.readme = package.readme.slice(0, 140);
+            }
+        }
+
+        return package;
+    });
+    */
+}
+
+function createErrorString(e, showStack){
+    return e.name || '' + showStack ? e.message + e.stack || '' : '';
+}
+
+function empty(pack){
+    return pack.length < 2;
 }
 
 

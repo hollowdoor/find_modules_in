@@ -155,7 +155,7 @@ function loadPackageJSON(dir, showStack){
         return Promise.resolve(false);
     }).then(function(package){
         if(package && typeof package.readme === 'string'){
-            console.log(package.readme.length);
+            
             if(package.readme.length > 141){
                 package.readme = package.readme.slice(0, 141);
             }
